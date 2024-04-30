@@ -2,7 +2,7 @@ from tabulate import tabulate
 import os
 os.system('cls') or None
 
-class Time:
+class Time: #Classe Time
     def __init__(self, nome, pg, gm, gs, s, v, ga):
         self.__nome = str(nome)
         self.__pg = int(pg)
@@ -11,111 +11,111 @@ class Time:
         self.__s = int(s)
         self.__v = int(v)
         self.__ga = float(ga)
-    
+        
+    # get e set para nome do time
     def getnome(self):
         return self.__nome
     def setnome(self, nome):
         self.__nome = nome
-        
+    
+    # get e set para pontos do time    
     def getpg(self):
         return self.__pg
     def setpg(self, pg):
         self.__pg = pg
 
+    # get e set para gols marcados do time
     def getgm(self):
         return self.__gm
     def setgm(self, gm):
         self.__gm = gm
-    
+ 
+    # get e set para gols sofridos do time
     def getgs(self):
         return self.__gs
     def setgs(self, gs):
         self.__gs = gs
     
+    # get e set para saldo de gols do time
     def gets(self):
         return self.__s
     def sets(self, s):
         self.__s = s
 
+    # get e set para número de vitórias do time
     def getv(self):
         return self.__v
     def setv(self, v):
         self.__v = v
 
+    # get e set para gols por partida do time
     def getga(self):
         return self.__ga
     def setga(self, ga):
         self.__ga = ga
 
-    def cadastrarTime(self):
-        arq = open('listaTimes.txt', 'r')
-        linhas = arq.readlines()
-        arq.close()
-        count = len(linhas)
-        
-        if count >= 6:
-            print('\nFoi atingido o número máximo de times inscritos para este campeonato.')
-            return
-        
-        while True:
-            self.setnome(input('\nInforme o nome do time que deseja cadastrar no campeonato: ').capitalize())
-            arq = open('listaTimes.txt', 'a')
-            arq.write(f'{self.getnome()}, {self.getpg()}, {self.getgm()}, {self.getgs()}, {self.gets()}, {self.getv()}, {self.getga()}\n')
-            arq.close()
-            
-            count += 1
-            if count < 6:
-                print('\nDeseja adicionar mais um time?')
-                print('S / N')
-                x = input().capitalize()
-                if x == 'S':
-                    continue
-                else:
-                    break
-            else:
-                print('Foi atingido o número máximo de times inscritos para este campeonato.')
-                break
-
-class Campeonato:
+class Campeonato: # Classe do campeonato
     def __init__(self, times):
         self.times = times
         self.partidas = []
-    
-    def simularPartidas(self):
+        self.iniciarPartidas()
+
+    # Cria uma lista de partidas e evita que jogos repetidos aconteçam. EX: A vs B, B vs A
+    def iniciarPartidas(self): 
+        for i in range(len(self.times)):
+            for j in range(i + 1, len(self.times)):
+                self.partidas.append((self.times[i], self.times[j]))
+
+    # Solicita o placar para as partidas existentes na lista de partidas criada.
+    def simularPartidas(self): 
         for partida in self.partidas:
             time1, time2 = partida
-            print(f"Digite o placar da partida entre {time1.getnome()} e {time2.getnome()}:")
-            placar1 = int(input(f"{time1.getnome()}: "))
-            placar2 = int(input(f"{time2.getnome()}: "))
-            time1.setgm(time1.getgm() + placar1)
-            time1.setgs(time1.getgs() + placar2)
-            time2.setgm(time2.getgm() + placar2)
-            time2.setgs(time2.getgs() + placar1)
-            if placar1 > placar2:
-                time1.setv(time1.getv() + 1)
-                time2.sets(time2.gets() + 1)
-            elif placar2 > placar1:
-                time2.setv(time2.getv() + 1)
-                time1.sets(time1.gets() + 1)
-            else:
-                time1.sets(time1.gets() + 1)
-                time2.sets(time2.gets() + 1)
+            print(f"\n{time1.getnome()} vs {time2.getnome()}")
+            gol_time1 = int(input(f"Gols do {time1.getnome()}: "))
+            gol_time2 = int(input(f"Gols do {time2.getnome()}: "))
 
-    def mostrarTabela(self):
+            # Atualiza os dados dos times
+            self.atualizarResultado(time1, gol_time1, gol_time2)
+            self.atualizarResultado(time2, gol_time2, gol_time1)
+
+            # Atualiza o arquivo listaTimes.txt
+            self.atualizarArquivoTimes()
+
+    # Faz o cálculo de dados para cada partida simulada.
+    def atualizarResultado(self, time, gol_marcados, gol_sofridos): 
+        time.setpg(time.getpg() + (3 if gol_marcados > gol_sofridos else (1 if gol_marcados == gol_sofridos else 0)))
+        time.setgm(time.getgm() + gol_marcados)
+        time.setgs(time.getgs() + gol_sofridos)
+        time.sets(time.gets() + (gol_marcados - gol_sofridos))
+        time.setv(time.getv() + (1 if gol_marcados > gol_sofridos else 0))
+        time.setga(time.getgm() / (time.getv() + (1 if time.getv() == 0 else 0)))
+
+    # Atualiza os dados após as partidas no arquivo txt
+    def atualizarArquivoTimes(self): 
+        arq = open('listaTimes.txt', 'w')
+        for time in self.times:
+            arq.write(f"{time.getnome()}, {time.getpg()}, {time.getgm()}, {time.getgs()}, {time.gets()}, {time.getv()}, {time.getga()}\n")
+        arq.close()
+        
+    # Mostra tabela do campeonato
+    def mostrarTabela(self): 
         tabela = []
+        headers = ["Time", "PG", "GM", "GS", "S", "V", "GA"]
         for time in self.times:
             tabela.append([time.getnome(), time.getpg(), time.getgm(), time.getgs(), time.gets(), time.getv(), time.getga()])
 
-            headers = ["Time", "PG", "GM", "GS", "S", "V", "GA"]
-            print(tabulate(tabela, headers=headers, tablefmt="grid"))
+        # Ordena a tabela pela quantidade de pontos ganhos e saldo de gols
+        tabela_ordenada = sorted(tabela, key=lambda x: (x[1], x[4]), reverse=True)
+        
+        print(tabulate(tabela_ordenada, headers=headers, tablefmt="grid"))
 
-
-class Menu:
+class Menu: # Classe Menu
     def __init__(self):
         self.times = self.carregarTimes()
         self.campeonato = Campeonato(self.times)
-
-        while True:
+        
+        # Roda em looping o sistema
+        while True: 
             print('\nCampeonato dos Pernetas')
             print('Digite o número da opção que deseja acessar!\n')
             print('1 - Cadastrar time.')
@@ -124,29 +124,36 @@ class Menu:
             print('\n4 - Sair do sistema')
 
             opcao = int(input('\n'))
-            if opcao == 1:
+            
+            # Opção de cadastro de time
+            if opcao == 1: 
                 self.cadastrarTime()
                 continue
 
-            elif opcao == 2:
+            # Opção de visualizar tabela
+            elif opcao == 2: 
                 self.campeonato.mostrarTabela()
                 print('\nVoltar para o menu? (S / N)')
                 voltar = input().upper()
                 if voltar == 'S':
                     continue
                 else:
+                    print('\nCampeonato dos Pernetas agradece sua participação.')
+                    print('Até breve!')
                     break
 
-            elif opcao == 3:
+            # Opção de cadastrar partidas
+            elif opcao == 3: 
                 self.campeonato.simularPartidas()
-                continue
             
-            elif opcao == 4:
+            # Opção encerrar o sistema
+            elif opcao == 4: 
                 print('\nCampeonato dos Pernetas agradece sua participação.')
                 print('Até breve!')
                 break
-
-    def carregarTimes(self):
+                
+    # Cria array com times existentes na lista de times
+    def carregarTimes(self): 
         arq = open('listaTimes.txt', 'r')
         linhas = arq.readlines()
         arq.close()
@@ -156,11 +163,15 @@ class Menu:
             times.append(Time(*dados))
         return times
 
-    def cadastrarTime(self):
+    # Método para criar um time no arquivo txt
+    def cadastrarTime(self): 
+        # Verifica número máximo de times no campeonato
         count = len(self.times)
-        if count >= 6:
+        if count >= 4:
             print('\nFoi atingido o número máximo de times inscritos para este campeonato.')
             return
+        
+        # Cadastra time zerado na lista para o campeonato
         while True:
             nome = input('\nInforme o nome do time que deseja cadastrar no campeonato: ').capitalize()
             arq = open('listaTimes.txt', 'a')
@@ -168,7 +179,7 @@ class Menu:
             arq.close()
             self.times.append(Time(nome, 0, 0, 0, 0, 0, 0))
             count += 1
-            if count < 6:
+            if count < 4:
                 print('\nDeseja adicionar mais um time?')
                 print('S / N')
                 x = input().capitalize()
@@ -180,11 +191,5 @@ class Menu:
                 print('Foi atingido o número máximo de times inscritos para este campeonato.')
                 break
 
-    def lerTimes(self):
-        for time in self.times:
-            print(f"{time.getnome()}, {time.getpg()}, {time.getgm()}, {time.getgs()}, {time.gets()}, {time.getv()}, {time.getga()}")
-
-
 if __name__ == "__main__":
     menu = Menu()
-    

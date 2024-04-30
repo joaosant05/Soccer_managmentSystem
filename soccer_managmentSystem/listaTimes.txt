@@ -1,6 +1,4 @@
-Inter, 0, 0, 0, 0, 0, 0.0
-Palmeiras, 0, 0, 0, 0, 0, 0.0
-Vasxco, 0, 0, 0, 0, 0, 0.0
-Grêbio, 0, 0, 0, 0, 0, 0.0
-Fortaleza, 0, 0, 0, 0, 0, 0.0
-Flamengo, 0, 0, 0, 0, 0, 0.0
+Internacional, 6, 6, 4, 2, 2, 3.0
+Fortaleza, 0, 3, 7, -4, 0, 3.0
+Fluminense, 9, 15, 5, 10, 3, 5.0
+Vasco, 3, 4, 12, -8, 1, 4.0
